@@ -1,10 +1,14 @@
 use anchor_lang::prelude::*;
 use anchor_spl::{
-    token::{Mint, Token, TokenAccount, MintTo, mint_to}, 
-    associated_token::AssociatedToken
+    associated_token::AssociatedToken,
+    token::{mint_to, Mint, MintTo, Token, TokenAccount},
 };
 
-use crate::{state::{Details, NftRecord}, utils::calc_reward, StakeError};
+use crate::{
+    state::{Details, NftRecord},
+    utils::calc_reward,
+    StakeError,
+};
 
 #[derive(Accounts)]
 pub struct WithdrawReward<'info> {
@@ -60,7 +64,7 @@ pub struct WithdrawReward<'info> {
 
     pub token_program: Program<'info, Token>,
     pub associated_token_program: Program<'info, AssociatedToken>,
-    pub system_program: Program<'info, System>
+    pub system_program: Program<'info, System>,
 }
 
 impl<'info> WithdrawReward<'info> {
@@ -68,9 +72,9 @@ impl<'info> WithdrawReward<'info> {
         let cpi_accounts = MintTo {
             mint: self.reward_mint.to_account_info(),
             to: self.reward_receive_account.to_account_info(),
-            authority: self.token_authority.to_account_info()
+            authority: self.token_authority.to_account_info(),
         };
-    
+
         let cpi_program = self.token_program.to_account_info();
 
         CpiContext::new(cpi_program, cpi_accounts)
@@ -89,24 +93,27 @@ pub fn withdraw_reward_handler(ctx: Context<WithdrawReward>) -> Result<()> {
 
     require_eq!(staking_status, true, StakeError::StakingInactive);
 
-    let (reward_tokens, current_time, is_eligible_for_reward) = calc_reward(
-        staked_at, 
-        minimum_stake_period, 
-        reward_emission,
-    ).unwrap();
+    let (reward_tokens, current_time, is_eligible_for_reward) =
+        calc_reward(staked_at, minimum_stake_period, reward_emission).unwrap();
 
-    let authority_seed = &[&b"token-authority"[..], &stake_details_key.as_ref(), &[token_auth_bump]];
- 
+    let authority_seed = &[
+        &b"token-authority"[..],
+        &stake_details_key.as_ref(),
+        &[token_auth_bump],
+    ];
+
     if is_eligible_for_reward {
         mint_to(
-            ctx.accounts.mint_token_ctx().with_signer(&[&authority_seed[..]]),
-             reward_tokens
+            ctx.accounts
+                .mint_token_ctx()
+                .with_signer(&[&authority_seed[..]]),
+            reward_tokens,
         )?;
     } else {
         return err!(StakeError::IneligibleForReward);
     }
 
     ctx.accounts.nft_record.staked_at = current_time;
-    
+
     Ok(())
 }

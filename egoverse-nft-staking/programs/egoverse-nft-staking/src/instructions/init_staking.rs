@@ -1,7 +1,5 @@
 use anchor_lang::prelude::*;
-use anchor_spl::{
-    token::{Mint, Token, SetAuthority, set_authority, spl_token::instruction::AuthorityType}, 
-};
+use anchor_spl::token::{Mint, Token, SetAuthority, set_authority, spl_token::instruction::AuthorityType};
 
 use crate::{state::Details, StakeError};
 

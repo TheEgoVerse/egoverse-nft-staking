@@ -9,7 +9,7 @@ pub struct NftRecord {
     /// The staking timestamp (8)
     pub staked_at: i64,
     /// The bump of NFT Record PDA (1)
-    pub bump: u8
+    pub bump: u8,
 }
 
 impl NftRecord {
@@ -19,6 +19,11 @@ impl NftRecord {
         let clock = Clock::get().unwrap();
         let staked_at = clock.unix_timestamp;
 
-        Self {staker, nft_mint, staked_at, bump}
+        Self {
+            staker,
+            nft_mint,
+            staked_at,
+            bump,
+        }
     }
 }

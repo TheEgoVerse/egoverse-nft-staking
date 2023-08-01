@@ -1,6 +1,5 @@
 use anchor_lang::prelude::*;
 
-
 #[account]
 pub struct Details {
     /// The status of the staking (1)
@@ -20,7 +19,7 @@ pub struct Details {
     /// The bump of token authority PDA (1)
     pub token_auth_bump: u8,
     /// The bump of nft authority PDA (1)
-    pub nft_auth_bump: u8
+    pub nft_auth_bump: u8,
 }
 
 impl Details {
@@ -34,7 +33,7 @@ impl Details {
         minimum_period: i64,
         stake_bump: u8,
         token_auth_bump: u8,
-        nft_auth_bump: u8
+        nft_auth_bump: u8,
     ) -> Self {
         Self {
             is_active: true,
@@ -45,7 +44,7 @@ impl Details {
             minimum_period,
             stake_bump,
             token_auth_bump,
-            nft_auth_bump
+            nft_auth_bump,
         }
     }
 

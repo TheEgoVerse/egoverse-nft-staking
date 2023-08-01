@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
-use anchor_spl::token::{set_authority, SetAuthority, Token, Mint, spl_token::instruction::AuthorityType};
+use anchor_spl::token::{
+    set_authority, spl_token::instruction::AuthorityType, Mint, SetAuthority, Token,
+};
 
 use crate::{state::Details, StakeError};
 
@@ -34,16 +36,16 @@ pub struct CloseStaking<'info> {
     pub token_authority: UncheckedAccount<'info>,
 
     pub creator: Signer<'info>,
-    pub token_program: Program<'info, Token>
+    pub token_program: Program<'info, Token>,
 }
 
 impl<'info> CloseStaking<'info> {
     pub fn transfer_auth_ctx(&self) -> CpiContext<'_, '_, '_, 'info, SetAuthority<'info>> {
         let cpi_accounts = SetAuthority {
             account_or_mint: self.token_mint.to_account_info(),
-            current_authority: self.token_authority.to_account_info()
+            current_authority: self.token_authority.to_account_info(),
         };
-    
+
         let cpi_program = self.token_program.to_account_info();
 
         CpiContext::new(cpi_program, cpi_accounts)
@@ -60,12 +62,18 @@ pub fn close_staking_handler(ctx: Context<CloseStaking>) -> Result<()> {
 
     require_eq!(staking_status, true, StakeError::StakingInactive);
 
-    let token_auth_seed = &[&b"token-authority"[..], &stake_details_key.as_ref(), &[token_auth_bump]];
+    let token_auth_seed = &[
+        &b"token-authority"[..],
+        &stake_details_key.as_ref(),
+        &[token_auth_bump],
+    ];
 
     set_authority(
-        ctx.accounts.transfer_auth_ctx().with_signer(&[&token_auth_seed[..]]),
+        ctx.accounts
+            .transfer_auth_ctx()
+            .with_signer(&[&token_auth_seed[..]]),
         AuthorityType::MintTokens,
-        Some(creator)
+        Some(creator),
     )?;
 
     ctx.accounts.stake_details.close_staking()
