@@ -1,0 +1,17 @@
+[features]
+seeds = false
+skip-lint = false
+[programs.localnet]
+egoverse_nft_staking = "BPRCax4zDLzppuapumnNaxfs9JjMRftxTrwMQrMkQHNi"
+
+[registry]
+url = "https://api.apr.dev"
+
+
+[provider]
+# cluster = "https://devnet.helius-rpc.com/?api-key=e72381be-56b6-40d7-9dff-419a81ad38ad"
+cluster = "localnet"
+wallet = "/Users/arihantbansal/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
