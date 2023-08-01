@@ -70,11 +70,6 @@ const metaplex = Metaplex.make(connection);
         
         console.log("Token Account Created: ", tokenAccount.address.toBase58());
 
-        // Mint 100 Tokens
-        let decimals = 1_000_000_000;
-        const sig = await mintTo(connection, keypair, mintAccount, tokenAccount.address, keypair, 100 * decimals)
-
-        console.log("Token Minted", sig);
     } catch(error) {
         console.log(`Oops, something went wrong: ${error}`)
     }
