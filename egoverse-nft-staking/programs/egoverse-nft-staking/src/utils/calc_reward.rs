@@ -5,6 +5,8 @@ pub fn calc_reward(
     staked_at: i64,
     minimum_stake_period: i64,
     reward_emission: u64,
+    is_active: bool,
+    pause_time: i64,
 ) -> Result<(u64, i64, bool)> {
     let clock = Clock::get().unwrap();
     let current_time = clock.unix_timestamp;
@@ -14,9 +16,16 @@ pub fn calc_reward(
         .ok_or(StakeError::ProgramAddError)?;
     let is_eligible_for_reward = current_time >= reward_eligible_time;
 
-    let rewardable_time_i64 = current_time
-        .checked_sub(staked_at)
-        .ok_or(StakeError::ProgramSubError)?;
+    let mut rewardable_time_i64;
+    if is_active {
+        rewardable_time_i64 = current_time
+            .checked_sub(staked_at)
+            .ok_or(StakeError::ProgramSubError)?;
+    } else {
+        rewardable_time_i64 = pause_time
+            .checked_sub(staked_at)
+            .ok_or(StakeError::ProgramSubError)?;
+    }
 
     let rewardable_time_u64 = match u64::try_from(rewardable_time_i64) {
         Ok(time) => time,

@@ -142,12 +142,19 @@ pub fn unstake_handler(ctx: Context<Unstake>) -> Result<()> {
     let minimum_stake_period = stake_details.minimum_period;
     let reward_emission = stake_details.reward;
     let staking_active = stake_details.is_active;
+    let staking_pause_time = stake_details.pause_time;
     let token_auth_bump = stake_details.token_auth_bump;
     let nft_auth_bump = stake_details.nft_auth_bump;
     let stake_details_key = stake_details.key();
 
-    let (reward_tokens, _current_time, is_eligible_for_reward) =
-        calc_reward(staked_at, minimum_stake_period, reward_emission).unwrap();
+    let (reward_tokens, _current_time, is_eligible_for_reward) = calc_reward(
+        staked_at,
+        minimum_stake_period,
+        reward_emission,
+        staking_active,
+        staking_pause_time,
+    )
+    .unwrap();
 
     let token_auth_seed = &[
         &b"token-authority"[..],
@@ -160,7 +167,7 @@ pub fn unstake_handler(ctx: Context<Unstake>) -> Result<()> {
         &[nft_auth_bump],
     ];
 
-    if is_eligible_for_reward && staking_active {
+    if is_eligible_for_reward {
         // Mint Reward Tokens
         mint_to(
             ctx.accounts

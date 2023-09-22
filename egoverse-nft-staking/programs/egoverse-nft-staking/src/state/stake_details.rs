@@ -4,6 +4,8 @@ use anchor_lang::prelude::*;
 pub struct Details {
     /// The status of the staking (1)
     pub is_active: bool,
+    /// The timestamp of staking pause (8)
+    pub pause_time: i64,
     /// The creator of the stake record (32)
     pub creator: Pubkey,
     /// The mint of the token to be given as reward (32)
@@ -23,7 +25,7 @@ pub struct Details {
 }
 
 impl Details {
-    pub const LEN: usize = 8 + 1 + 32 + 32 + 8 + 32 + 8 + 1 + 1 + 1;
+    pub const LEN: usize = 8 + 1 + 8 + 32 + 32 + 8 + 32 + 8 + 1 + 1 + 1;
 
     pub fn init(
         creator: Pubkey,
@@ -37,6 +39,7 @@ impl Details {
     ) -> Self {
         Self {
             is_active: true,
+            pause_time: -1,
             creator,
             reward_mint,
             reward,
@@ -50,6 +53,9 @@ impl Details {
 
     pub fn close_staking(&mut self) -> Result<()> {
         self.is_active = false;
+        let clock = Clock::get().unwrap();
+        let current_time = clock.unix_timestamp;
+        self.pause_time = current_time;
         Ok(())
     }
 }

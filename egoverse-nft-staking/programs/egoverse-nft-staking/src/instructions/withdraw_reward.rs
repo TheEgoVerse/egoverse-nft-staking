@@ -88,13 +88,20 @@ pub fn withdraw_reward_handler(ctx: Context<WithdrawReward>) -> Result<()> {
     let minimum_stake_period = stake_details.minimum_period;
     let reward_emission = stake_details.reward;
     let staking_status = stake_details.is_active;
+    let staking_pause_time = stake_details.pause_time;
     let token_auth_bump = stake_details.token_auth_bump;
     let stake_details_key = stake_details.key();
 
     require_eq!(staking_status, true, StakeError::StakingInactive);
 
-    let (reward_tokens, current_time, is_eligible_for_reward) =
-        calc_reward(staked_at, minimum_stake_period, reward_emission).unwrap();
+    let (reward_tokens, current_time, is_eligible_for_reward) = calc_reward(
+        staked_at,
+        minimum_stake_period,
+        reward_emission,
+        staking_status,
+        staking_pause_time,
+    )
+    .unwrap();
 
     let authority_seed = &[
         &b"token-authority"[..],
